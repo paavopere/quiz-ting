@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>quiz-ting | City Explorer</title>
+  <title>quiz-ting 🥜</title>
   <script src="https://unpkg.com/dexie@3.2.2/dist/dexie.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="styles.css" rel="stylesheet">
@@ -29,7 +29,7 @@
     <div class="search-container">
       <div class="pattern-input-wrapper">
         <span id="regexPrefix" class="regex-anchor">^</span>
-        <input type="text" id="patternInput" placeholder="City pattern e.g. l_nd_n">
+        <input type="text" id="patternInput" placeholder="City pattern e.g. l*nd*n">
         <span id="regexSuffix" class="regex-anchor">$</span>
       </div>
       <input type="text" id="countryInput" placeholder="Country code (optional)">
@@ -47,7 +47,6 @@
     <div id="results"></div>
   </div>
 
-  <!-- Include the external JavaScript file -->
   <script src="app.js"></script>
 </body>
 </html>
