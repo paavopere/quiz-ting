@@ -5,57 +5,118 @@
   <title>quiz-ting</title>
   <script src="https://unpkg.com/dexie@3.2.2/dist/dexie.min.js"></script>
   <style>
-    input { width: 30px; text-align: center; margin: 2px; }
-    #results { margin-top: 20px; }
+    #patternInput { 
+      width: 200px; 
+      font-size: 18px; 
+      padding: 5px;
+      margin-right: 10px;
+    }
+    #results { 
+      margin-top: 20px; 
+    }
+    .instructions {
+      margin-bottom: 15px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
   <h1>quiz-ting</h1>
-  <div id="inputs"></div>
-  <button id="searchBtn">Search</button>
+  
+  <div class="instructions">
+    Type letters and use underscores (_) for unknown characters.
+  </div>
+  
+  <div>
+    <input type="text" id="patternInput" placeholder="e.g. l_nd_n">
+    <button id="searchBtn">Search</button>
+  </div>
 
   <div id="results"></div>
 
   <script>
     const db = new Dexie("CitiesDB");
-    db.version(1).stores({
-      cities: "name, country, population"
+    db.version(2).stores({
+      cities: "name, country, population",
+      metadata: "key"
     });
 
     async function loadCitiesFromJSON() {
-      const count = await db.cities.count();
-      if (count === 0) {
+      try {
+        // First fetch the cities.json file and calculate its checksum
         const res = await fetch('cities.json');
         const cities = await res.json();
-        await db.cities.bulkPut(cities);
-        console.log("Loaded cities into IndexedDB");
+        const jsonText = JSON.stringify(cities);
+        const currentChecksum = await calculateChecksum(jsonText);
+        
+        // Check if we need to reload the data
+        const needsReload = await shouldReloadData(currentChecksum);
+        
+        if (needsReload) {
+          // Clear existing data and reload
+          console.log("Cities data changed, reloading...");
+          await db.cities.clear();
+          await db.cities.bulkPut(cities);
+          
+          // Save the new checksum
+          await db.metadata.put({ key: 'checksum', value: currentChecksum });
+          console.log("Loaded cities into IndexedDB with new checksum");
+        } else {
+          console.log("Using existing cities data (checksum matches)");
+        }
+      } catch (error) {
+        console.error("Error loading cities data:", error);
       }
     }
-
-    const maxLength = 10;
-    const inputsDiv = document.getElementById('inputs');
-    for (let i = 0; i < maxLength; i++) {
-      const input = document.createElement('input');
-      input.setAttribute('maxlength', 1);
-      input.dataset.index = i;
-      inputsDiv.appendChild(input);
+    
+    async function shouldReloadData(currentChecksum) {
+      // First time loading or force reload if no cities
+      const cityCount = await db.cities.count();
+      if (cityCount === 0) return true;
+      
+      // Check if checksum has changed
+      const storedChecksumObj = await db.metadata.get('checksum');
+      if (!storedChecksumObj) return true;
+      
+      return storedChecksumObj.value !== currentChecksum;
+    }
+    
+    async function calculateChecksum(text) {
+      // Simple hash function
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        const char = text.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return hash.toString();
     }
 
-    document.getElementById('searchBtn').addEventListener('click', async () => {
-      const inputs = [...document.querySelectorAll('#inputs input')];
-      const pattern = inputs.map(input => input.value || '_').join('');
-      const regex = new RegExp('^' + pattern.replace(/_/g, '.') + '$', 'i');
+    // Add event listener for search button
+    document.getElementById('searchBtn').addEventListener('click', performSearch);
+    
+    // Add event listener to allow searching by pressing Enter
+    document.getElementById('patternInput').addEventListener('keypress', event => {
+      if (event.key === 'Enter') {
+        performSearch();
+      }
+    });
 
+    async function performSearch() {
+      const patternInput = document.getElementById('patternInput');
+      let pattern = patternInput.value.trim();
+      
       console.log("Searching for pattern:", pattern);
-
+      
+      const regex = new RegExp('^' + pattern.replace(/_/g, '.') + '$', 'i');
       const matches = await db.cities.filter(city => regex.test(city.name)).toArray();
 
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = matches.length
         ? matches.map(c => `<div>${c.name} (${c.country})</div>`).join('')
         : '<div>No matches found</div>';
-    });
+    }
 
     loadCitiesFromJSON();
   </script>

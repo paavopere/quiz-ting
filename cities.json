@@ -9,6 +9,7 @@
   { "name": "Mumbai", "country": "IN", "population": 12442373, "lat": 19.0728, "lon": 72.8826 },
   { "name": "Chicago", "country": "US", "population": 2716000, "lat": 41.8500, "lon": -87.6501 },
   { "name": "Sydney", "country": "AU", "population": 5312163, "lat": -33.8679, "lon": 151.2073 },
-  { "name": "Londonfooz", "country": "GB", "population": 9000000, "lat": 51.5085, "lon": -0.1257 }
-
+  { "name": "Helsinki", "country": "FI", "population": 631695, "lat": 60.1695, "lon": 24.9354 },
+  { "name": "Jyväskylä", "country": "FI", "population": 140000, "lat": 62.2415, "lon": 25.7471 },
+  { "name": "Lohja", "country": "FI", "population": 47000, "lat": 60.9828, "lon": 25.2651 }
 ]
