@@ -25,7 +25,7 @@
   <h1>quiz-ting</h1>
   
   <div class="instructions">
-    Type letters and use underscores (_) for unknown characters.
+    Type letters and use underscores (_) or asterisks (*) for unknown characters.
   </div>
   
   <div>
@@ -109,7 +109,8 @@
       
       console.log("Searching for pattern:", pattern);
       
-      const regex = new RegExp('^' + pattern.replace(/_/g, '.') + '$', 'i');
+      // Replace both _ and * with . for regex pattern matching
+      const regex = new RegExp('^' + pattern.replace(/[_*]/g, '.') + '$', 'i');
       const matches = await db.cities.filter(city => regex.test(city.name)).toArray();
 
       const resultsDiv = document.getElementById('results');
