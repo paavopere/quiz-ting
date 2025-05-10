@@ -6,6 +6,8 @@ TSV_FILE = $(DATA_DIR)/cities5000.txt
 JSON_OUTPUT = $(DATA_DIR)/cities5000.json
 JSON_MIN_OUTPUT = $(DATA_DIR)/cities5000.min.json
 CITY_LIMIT = 1000000
+VENV_DIR = venv
+PYTHON = $(VENV_DIR)/bin/python
 
 # Default target - now includes minification
 all: $(JSON_MIN_OUTPUT)
@@ -42,13 +44,37 @@ $(JSON_MIN_OUTPUT): $(JSON_OUTPUT)
 		cp $(JSON_OUTPUT) $(JSON_MIN_OUTPUT); \
 	fi
 
+# Create and setup virtual environment
+$(VENV_DIR):
+	python3 -m venv $(VENV_DIR)
+	$(VENV_DIR)/bin/pip install firebase-admin
+
+# Firebase upload target
+firebase-upload: $(VENV_DIR)
+	@echo "Usage: make firebase-upload SERVICE_ACCOUNT=path/to/service-account.json"
+	@if [ -z "$(SERVICE_ACCOUNT)" ]; then \
+		echo "Error: SERVICE_ACCOUNT parameter is required"; \
+		echo "Example: make firebase-upload SERVICE_ACCOUNT=path/to/service-account.json"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(SERVICE_ACCOUNT)" ]; then \
+		echo "Error: Service account file not found: $(SERVICE_ACCOUNT)"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(JSON_MIN_OUTPUT)" ]; then \
+		echo "Error: Minified JSON file not found. Run 'make' first."; \
+		exit 1; \
+	fi
+	@echo "Uploading data to Firebase..."
+	$(VENV_DIR)/bin/python upload_firebase.py $(SERVICE_ACCOUNT) $(JSON_MIN_OUTPUT)
+
 # Clean up
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(ZIP_FILE) $(TSV_FILE) $(JSON_OUTPUT) $(JSON_MIN_OUTPUT)
 
-clean-all:
-	@echo "Removing data directory..."
-	@rm -rf $(DATA_DIR)
+clean-all: clean
+	@echo "Removing data directory and virtual environment..."
+	@rm -rf $(DATA_DIR) $(VENV_DIR)
 
-.PHONY: all clean clean-all
+.PHONY: all clean clean-all firebase-upload

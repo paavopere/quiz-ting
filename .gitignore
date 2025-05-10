@@ -1,5 +1,4 @@
-# Ignore everything in the data directory
 data/*
-
-# But keep the minified JSON file
 !data/cities5000.min.json
+
+venv/
