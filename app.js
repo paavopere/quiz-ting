@@ -67,38 +67,55 @@ async function performSearch() {
   const countryInput = document.getElementById('countryInput');
   let country = countryInput.value.trim().toUpperCase();
   
-  console.log("Searching for pattern:", pattern, "in country:", country || "all");
+  const useRegexMode = document.getElementById('regexMode').checked;
   
-  // Replace both _ and * with . for regex pattern matching
-  const regex = new RegExp('^' + pattern.replace(/[_*]/g, '.') + '$', 'i');
+  console.log(`Searching for ${useRegexMode ? 'regex' : 'wildcard'} pattern:`, pattern, "in country:", country || "all");
   
-  // First filter by name pattern
-  let matches = await db.cities.filter(city => regex.test(city.name)).toArray();
-  
-  // Then optionally filter by country
-  if (country) {
-    matches = matches.filter(city => city.country.toUpperCase() === country);
-  }
-  
-  // Sort by population (descending)
-  matches.sort((a, b) => b.population - a.population);
+  // Create regex based on mode
+  let regex;
+  try {
+    if (useRegexMode) {
+      // Add anchors to regex pattern if they're not already there
+      if (!pattern.startsWith('^')) pattern = '^' + pattern;
+      if (!pattern.endsWith('$')) pattern = pattern + '$';
+      regex = new RegExp(pattern, 'i');
+    } else {
+      // Convert wildcards to regex pattern
+      regex = new RegExp('^' + pattern.replace(/[_*]/g, '.') + '$', 'i');
+    }
+    
+    // First filter by name pattern
+    let matches = await db.cities.filter(city => regex.test(city.name)).toArray();
+    
+    // Then optionally filter by country
+    if (country) {
+      matches = matches.filter(city => city.country.toUpperCase() === country);
+    }
+    
+    // Sort by population (descending)
+    matches.sort((a, b) => b.population - a.population);
 
-  const resultsDiv = document.getElementById('results');
-  if (matches.length) {
-    // Add results count
-    const resultsCount = `<div class="results-count">${matches.length} cities found</div>`;
-    
-    // Create compact grid layout for results
-    const citiesHTML = matches.map(c => `
-      <div class="city-card">
-        <span class="city-name">${c.name}<span class="city-country">${c.country}</span></span>
-        <span class="city-population">${formatPopulation(c.population)}</span>
-      </div>
-    `).join('');
-    
-    resultsDiv.innerHTML = resultsCount + citiesHTML;
-  } else {
-    resultsDiv.innerHTML = '<div class="no-results">No matches found</div>';
+    const resultsDiv = document.getElementById('results');
+    if (matches.length) {
+      // Add results count
+      const resultsCount = `<div class="results-count">${matches.length} cities found</div>`;
+      
+      // Create compact grid layout for results
+      const citiesHTML = matches.map(c => `
+        <div class="city-card">
+          <span class="city-name">${c.name}<span class="city-country">${c.country}</span></span>
+          <span class="city-population">${formatPopulation(c.population)}</span>
+        </div>
+      `).join('');
+      
+      resultsDiv.innerHTML = resultsCount + citiesHTML;
+    } else {
+      resultsDiv.innerHTML = '<div class="no-results">No matches found</div>';
+    }
+  } catch (error) {
+    // Display error for invalid regex
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = `<div class="error-message">Invalid regex pattern: ${error.message}</div>`;
   }
 }
 
