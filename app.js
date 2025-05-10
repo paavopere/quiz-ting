@@ -84,9 +84,22 @@ async function performSearch() {
   matches.sort((a, b) => b.population - a.population);
 
   const resultsDiv = document.getElementById('results');
-  resultsDiv.innerHTML = matches.length
-    ? matches.map(c => `<div>${c.name} (${c.country}) - Population: ${formatPopulation(c.population)}</div>`).join('')
-    : '<div>No matches found</div>';
+  if (matches.length) {
+    // Add results count
+    const resultsCount = `<div class="results-count">${matches.length} cities found</div>`;
+    
+    // Create compact grid layout for results
+    const citiesHTML = matches.map(c => `
+      <div class="city-card">
+        <span class="city-name">${c.name}<span class="city-country">${c.country}</span></span>
+        <span class="city-population">${formatPopulation(c.population)}</span>
+      </div>
+    `).join('');
+    
+    resultsDiv.innerHTML = resultsCount + citiesHTML;
+  } else {
+    resultsDiv.innerHTML = '<div class="no-results">No matches found</div>';
+  }
 }
 
 // Format population with commas
