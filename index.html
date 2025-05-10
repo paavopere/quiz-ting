@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>quiz-ting</title>
+  <script src="https://unpkg.com/dexie@3.2.2/dist/dexie.min.js"></script>
+  <style>
+    input { width: 30px; text-align: center; margin: 2px; }
+    #results { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>quiz-ting</h1>
+  <div id="inputs"></div>
+  <button id="searchBtn">Search</button>
+
+  <div id="results"></div>
+
+  <script>
+    const db = new Dexie("CitiesDB");
+    db.version(1).stores({
+      cities: "name, country, population"
+    });
+
+    async function loadCitiesFromJSON() {
+      const count = await db.cities.count();
+      if (count === 0) {
+        const res = await fetch('cities.json');
+        const cities = await res.json();
+        await db.cities.bulkPut(cities);
+        console.log("Loaded cities into IndexedDB");
+      }
+    }
+
+    const maxLength = 10;
+    const inputsDiv = document.getElementById('inputs');
+    for (let i = 0; i < maxLength; i++) {
+      const input = document.createElement('input');
+      input.setAttribute('maxlength', 1);
+      input.dataset.index = i;
+      inputsDiv.appendChild(input);
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const inputs = [...document.querySelectorAll('#inputs input')];
+      const pattern = inputs.map(input => input.value || '_').join('');
+      const regex = new RegExp('^' + pattern.replace(/_/g, '.') + '$', 'i');
+
+      console.log("Searching for pattern:", pattern);
+
+      const matches = await db.cities.filter(city => regex.test(city.name)).toArray();
+
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = matches.length
+        ? matches.map(c => `<div>${c.name} (${c.country})</div>`).join('')
+        : '<div>No matches found</div>';
+    });
+
+    loadCitiesFromJSON();
+  </script>
+</body>
+</html>

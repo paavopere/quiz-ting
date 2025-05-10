@@ -1,0 +1,14 @@
+[
+  { "name": "London", "country": "GB", "population": 9000000, "lat": 51.5085, "lon": -0.1257 },
+  { "name": "Paris", "country": "FR", "population": 2148000, "lat": 48.8534, "lon": 2.3488 },
+  { "name": "New York", "country": "US", "population": 8419000, "lat": 40.7143, "lon": -74.006 },
+  { "name": "Tokyo", "country": "JP", "population": 13929286, "lat": 35.6895, "lon": 139.6917 },
+  { "name": "Cairo", "country": "EG", "population": 9900000, "lat": 30.0626, "lon": 31.2497 },
+  { "name": "Berlin", "country": "DE", "population": 3769000, "lat": 52.5244, "lon": 13.4105 },
+  { "name": "Toronto", "country": "CA", "population": 2930000, "lat": 43.7001, "lon": -79.4163 },
+  { "name": "Mumbai", "country": "IN", "population": 12442373, "lat": 19.0728, "lon": 72.8826 },
+  { "name": "Chicago", "country": "US", "population": 2716000, "lat": 41.8500, "lon": -87.6501 },
+  { "name": "Sydney", "country": "AU", "population": 5312163, "lat": -33.8679, "lon": 151.2073 },
+  { "name": "Londonfooz", "country": "GB", "population": 9000000, "lat": 51.5085, "lon": -0.1257 }
+
+]
