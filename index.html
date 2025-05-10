@@ -19,7 +19,11 @@
     </div>
     
     <div class="search-container">
-      <input type="text" id="patternInput" placeholder="City pattern e.g. l_nd_n">
+      <div class="pattern-input-wrapper">
+        <span id="regexPrefix" class="regex-anchor">^</span>
+        <input type="text" id="patternInput" placeholder="City pattern e.g. l_nd_n">
+        <span id="regexSuffix" class="regex-anchor">$</span>
+      </div>
       <input type="text" id="countryInput" placeholder="Country code (optional)">
       <button id="searchBtn">Search</button>
     </div>

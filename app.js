@@ -124,6 +124,24 @@ function formatPopulation(population) {
   return population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Update regex display with anchors
+function updateRegexDisplay() {
+  const patternInput = document.getElementById('patternInput');
+  const regexMode = document.getElementById('regexMode').checked;
+  const regexPrefix = document.getElementById('regexPrefix');
+  const regexSuffix = document.getElementById('regexSuffix');
+  
+  if (regexMode) {
+    regexPrefix.style.display = 'block';
+    regexSuffix.style.display = 'block';
+    patternInput.classList.add('regex-mode');
+  } else {
+    regexPrefix.style.display = 'none';
+    regexSuffix.style.display = 'none';
+    patternInput.classList.remove('regex-mode');
+  }
+}
+
 // Initialize the application
 function initApp() {
   // Add event listener for search button
@@ -135,6 +153,12 @@ function initApp() {
       performSearch();
     }
   });
+  
+  // Add event listener for regex mode toggle
+  document.getElementById('regexMode').addEventListener('change', updateRegexDisplay);
+  
+  // Initialize regex display
+  updateRegexDisplay();
   
   // Load the city data
   loadCitiesFromJSON();

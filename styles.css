@@ -168,6 +168,37 @@ h1 {
   font-style: italic;
 }
 
+.pattern-input-wrapper {
+  position: relative;
+  flex: 2;
+  display: flex;
+  align-items: center;
+}
+
+.regex-anchor {
+  position: absolute;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 18px;
+  color: #3f51b5;
+  display: none;
+  user-select: none;
+}
+
+#regexPrefix {
+  left: 8px;
+}
+
+#regexSuffix {
+  right: 8px;
+}
+
+/* Add padding to input when in regex mode */
+.regex-mode {
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+}
+
 @media (max-width: 600px) {
   body {
     padding: 10px;
