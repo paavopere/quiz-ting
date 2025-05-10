@@ -112,11 +112,19 @@
       // Replace both _ and * with . for regex pattern matching
       const regex = new RegExp('^' + pattern.replace(/[_*]/g, '.') + '$', 'i');
       const matches = await db.cities.filter(city => regex.test(city.name)).toArray();
+      
+      // Sort by population (descending)
+      matches.sort((a, b) => b.population - a.population);
 
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = matches.length
-        ? matches.map(c => `<div>${c.name} (${c.country})</div>`).join('')
+        ? matches.map(c => `<div>${c.name} (${c.country}) - Population: ${formatPopulation(c.population)}</div>`).join('')
         : '<div>No matches found</div>';
+    }
+
+    // Format population with commas
+    function formatPopulation(population) {
+      return population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     loadCitiesFromJSON();
