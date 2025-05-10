@@ -115,7 +115,13 @@ async function performSearch() {
       regex = new RegExp(pattern, 'i');
     } else {
       // Convert wildcards to regex pattern
-      regex = new RegExp('^' + pattern.replace(/[_*]/g, '.') + '$', 'i');
+      // * becomes . (single character)
+      // ? becomes .+ (one or more characters)
+      const regexPattern = pattern
+        .replace(/\*/g, '.') // * matches any single character
+        .replace(/\?/g, '.+'); // ? matches one or more characters
+      
+      regex = new RegExp('^' + regexPattern + '$', 'i');
     }
     
     // First filter by name pattern

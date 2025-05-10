@@ -11,11 +11,19 @@
 <body>
   <div class="container">
     <h1>quiz-ting</h1>
-    <p class="tagline">Explore cities around the world</p>
+    <p class="tagline">Search for place names that match a pattern</p>
     
     <div class="instructions">
-      <strong>How to search:</strong> Type letters and use underscores (_) or asterisks (*) for unknown characters. 
-      Optionally filter by country code (e.g., US, GB, IN).
+      <p><strong>How to search:</strong> Type some letters and wildcards. <code>?</code> replaces 1 
+        or more characters and <code>*</code> replaces 1 character. Optionally filter by country 
+        code (e.g., US, GB, IN).</p>
+        <ul>
+          <li><code>l?nd?n</code> matches <em>London</em>, <em>Linden</em>, and <em>Letpandan</em>, etc.</li>
+          <li><code>l*nd*n</code> matches <em>London</em> and <em>Linden</em> but not <em>Letpandan</em></li>
+          <li><code>?oh*a</code> matches stuff like <em>Lohja</em> and <em>Limbach-Oberfrohna</em></li>
+        </ul>
+
+      <p>For hackers, you can use regex patterns if you check the box. E.g. <code>.+oh.a</code> </p>
     </div>
     
     <div class="search-container">
@@ -32,7 +40,7 @@
       <label class="checkbox-container">
         <input type="checkbox" id="regexMode">
         <span class="checkbox-label">Use regex pattern</span>
-        <span class="tooltip" title="Enable to use JavaScript regex syntax instead of simple wildcards">?</span>
+        <span class="tooltip" title="Use JavaScript regex syntax instead of simple wildcards">?</span>
       </label>
     </div>
 
