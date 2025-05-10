@@ -1,33 +1,67 @@
 // City Quiz Application Logic
 
-// Initialize the database
+// Initialize the database with a compound key
 const db = new Dexie("CitiesDB");
-db.version(2).stores({
-  cities: "name, country, population",
+const DB_VERSION = 5;  // Increment version number
+db.version(DB_VERSION).stores({
+  cities: "[name+country+lat+lon], name, country, population", // Compound primary key
   metadata: "key"
 });
+
+// Force delete the database before opening if schema version changed
+async function ensureFreshDatabase() {
+  try {
+    // Check if we need to delete the old database
+    const existingDBVersion = localStorage.getItem('cities_db_version');
+
+    console.log(`Current DB version: ${DB_VERSION}, Existing DB version: ${existingDBVersion}`);
+    
+    if (existingDBVersion && parseInt(existingDBVersion) < DB_VERSION) {
+      console.log(`Database schema changed (${existingDBVersion} -> ${DB_VERSION}). Deleting old database...`);
+      
+      // Close the database connection
+      await db.close();
+      
+      // Delete the database entirely
+      await Dexie.delete("CitiesDB");
+      
+      console.log("Old database deleted successfully");
+    }
+    
+    // Save current version to localStorage
+    localStorage.setItem('cities_db_version', DB_VERSION);
+    
+  } catch (error) {
+    console.error("Error managing database version:", error);
+  }
+}
 
 // Load city data from JSON
 async function loadCitiesFromJSON() {
   try {
+    // Ensure we have a fresh database when schema changes
+    await ensureFreshDatabase();
+    
     // First fetch the cities.json file and calculate its checksum
     const res = await fetch('data/cities5000.json');
     const cities = await res.json();
     const jsonText = JSON.stringify(cities);
-    const currentChecksum = await calculateChecksum(jsonText);
+    
+    // Include DB_VERSION in the checksum
+    const currentChecksum = await calculateChecksum(jsonText + DB_VERSION);
     
     // Check if we need to reload the data
     const needsReload = await shouldReloadData(currentChecksum);
     
     if (needsReload) {
       // Clear existing data and reload
-      console.log("Cities data changed, reloading...");
+      console.log("Cities data changed or schema updated, reloading...");
       await db.cities.clear();
       await db.cities.bulkPut(cities);
       
       // Save the new checksum
       await db.metadata.put({ key: 'checksum', value: currentChecksum });
-      console.log("Loaded cities into IndexedDB with new checksum");
+      console.log(`Loaded cities into IndexedDB with new checksum (DB version: ${DB_VERSION})`);
     } else {
       console.log("Using existing cities data (checksum matches)");
     }
