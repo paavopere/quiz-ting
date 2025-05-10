@@ -45,7 +45,7 @@
     async function loadCitiesFromJSON() {
       try {
         // First fetch the cities.json file and calculate its checksum
-        const res = await fetch('cities.json');
+        const res = await fetch('data/cities5000.json');
         const cities = await res.json();
         const jsonText = JSON.stringify(cities);
         const currentChecksum = await calculateChecksum(jsonText);
